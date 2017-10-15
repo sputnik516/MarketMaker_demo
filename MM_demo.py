@@ -4,6 +4,10 @@ import json
 import random
 from scipy import stats, special
 from qpython import qconnection
+from kdb import PublisherThread
+from qpython import qconnection
+from qpython.qcollection import qlist
+from qpython.qtype import QException, QTIME_LIST, QSYMBOL_LIST, QFLOAT_LIST, QTIMESTAMP_LIST, QDATE_LIST, QFLOAT
 
 
 class MM(object):
@@ -17,8 +21,7 @@ class MM(object):
         self.portfoolio = {'Shares': 0, 'Cost': 0, 'PnL': 0, 'Avg_Cost': 0, 'Unrealized_PnL': 0}
 
         # Connection to kdb
-        self.q = qconnection.QConnection(host='localhost', port=5000, pandas=True)
-        self.q.open()
+        self.pub_thread = PublisherThread()
 
     def calc_b_a(self, data):
         # Calculate our expected bid / ask
@@ -114,11 +117,6 @@ class MM(object):
         print('Pnl booked: {} | Portfolio: {}'.format(trade_pnl, self.portfoolio))
         print(last_trade)
 
-    def save_to_kdb(self):
-        """Save trading data to database"""
-        """TO DO"""
-        pass
-
     def run_strat(self, context):
         """
         Run strategy continuously
@@ -130,6 +128,9 @@ class MM(object):
         context = json.loads(context.decode('UTF-8'))
         new_offer = pd.DataFrame.from_dict(context, orient='index').transpose()
         new_offer['timestamp'] = pd.to_datetime(new_offer['timestamp'])
+
+        # Save to kbd
+        self.pub_thread.run(data=new_offer)
 
         # Aggregate orders
         self.px_data = self.px_data.append(new_offer)
@@ -143,9 +144,11 @@ class MM(object):
         self.px_data.fillna(method='ffill', inplace=True)
 
         if len(self.px_data) > self.lookback_periods:
+
             self.px_data = self.px_data.iloc[1:]
             self.px_data.reset_index(inplace=True, drop=True)
             self.calc_b_a(data=self.px_data)
+
         else:
             print('Not enough historical trade data yet...')
 
