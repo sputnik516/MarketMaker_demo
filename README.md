@@ -1,11 +1,10 @@
 Stock Market simulation
 
-This is a simulation of a market-maker algorithm. Prices are simulated assuming the Random Walk Theory. The algorithm
-uses historical data to decide prices and sizes of offers to send to the market. It also maintains a simulated order book,
-selecting best bids and offers. Finally, it adjusts for expected market impact.
-
-Once offers are taken, the algorithm maintains a position within risk parameters, and attempts to liquidate it at a
-profit.
+This is a simulation of a stock market. There are many participants (traders) sending their buy and sell offers. We
+will run a trading strategy that analyses these offers and decides which to trade on.
+Prices follow the "market" price but have enough variation to simulate actual market mechanics. Our strategy will
+enter a position when it sees an attractive risk / reward, attempt to exit it at a profit, and maintain it's size within
+ preset risk constraints. If it is carrying too much risk on the long / short side, it will begin unwinding the position.
 
 Requires:
 
