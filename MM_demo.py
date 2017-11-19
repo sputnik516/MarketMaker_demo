@@ -3,11 +3,11 @@ import numpy as np
 import json
 import random
 from scipy import stats, special
-from qpython import qconnection
+# from qpython import qconnection
 from kdb import PublisherThread
-from qpython import qconnection
-from qpython.qcollection import qlist
-from qpython.qtype import QException, QTIME_LIST, QSYMBOL_LIST, QFLOAT_LIST, QTIMESTAMP_LIST, QDATE_LIST, QFLOAT
+# from qpython import qconnection
+# from qpython.qcollection import qlist
+# from qpython.qtype import QException, QTIME_LIST, QSYMBOL_LIST, QFLOAT_LIST, QTIMESTAMP_LIST, QDATE_LIST, QFLOAT
 
 
 class MM(object):
@@ -24,6 +24,7 @@ class MM(object):
         self.pub_thread = PublisherThread()
 
     def calc_b_a(self, data):
+        """Calculate and optimize bid / ask size, price"""
         # Calculate our expected bid / ask
         mkt_bid = data['Bid'].values[-1]
         mkt_ask = data['Ask'].values[-1]
@@ -54,7 +55,8 @@ class MM(object):
             print('No order placed')
 
     def risk_control(self, bid, ask, last_trade):
-        """If position size at or above 95% of max, reduce position"""
+        """Optimize position size to match risk targets.
+        If position size at or above 95% of max, reduce position"""
         # Are we long or short?
         pos_cost = abs(self.portfoolio['Cost'])
         side = self.sign(self.portfoolio['Cost'])
@@ -66,7 +68,6 @@ class MM(object):
             # Cover if short
             price = ask
 
-        # while abs(self.portfoolio['Cost']) >= self.max_pos * .75:
         shares = (pos_cost * 0.05) / last_trade * side * -1
         shares = int(round(shares, -2))
         print('Reducing position, {} shares, price: {}'.format(shares, price))

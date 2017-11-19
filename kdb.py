@@ -1,13 +1,7 @@
-import datetime
-import numpy
-import random
+import numpy as np
 import threading
-import sys
-import time
-
 from qpython import qconnection, MetaData
-from qpython.qcollection import qlist
-from qpython.qtype import QException, QTIME_LIST, QSYMBOL_LIST, QFLOAT_LIST, QTIMESTAMP_LIST, QDATE_LIST, QKEYED_TABLE, QTABLE
+from qpython.qtype import QException, QKEYED_TABLE
 
 
 class PublisherThread(threading.Thread):
@@ -30,9 +24,13 @@ class PublisherThread(threading.Thread):
         data.meta = MetaData(**{'qtype': QKEYED_TABLE})
         data.reset_index(drop=True)
         data.set_index(['timestamp'], inplace=True)
-        self.q.sync('insert', numpy.string_('trades'), data)
-        temp = self.q('trades')
-        print(len(temp))
+        try:
+            self.q.sync('insert', np.string_('trades'), data)
+            temp = self.q('trades')
+            # print(len(temp))
+            print('KDB updated')
+        except QException as e:
+            print(str(e))
 
     def commit(self):
         self.q('save `trade_hist')
