@@ -3,20 +3,18 @@ import numpy as np
 import json
 import random
 from scipy import stats, special
-# from qpython import qconnection
 from kdb import PublisherThread
-# from qpython import qconnection
-# from qpython.qcollection import qlist
-# from qpython.qtype import QException, QTIME_LIST, QSYMBOL_LIST, QFLOAT_LIST, QTIMESTAMP_LIST, QDATE_LIST, QFLOAT
 
 
 class MM(object):
-    def __init__(self):
-        self.max_pos = 1000000
-        self.max_trade_value = 200000
+    def __init__(self, max_pos=1000000, max_trade_value=200000):
+        self.max_pos = max_pos
+        self.max_trade_value = max_trade_value
         self.fill_rate = 0.25
         self.px_data = pd.DataFrame(columns=['timestamp', 'Trade Price', 'Bid', 'Ask'])
         self.lookback_periods = 25
+
+        # Weight of historical data diminishes with time
         self.weights = list(map(lambda r: 100 * pow(1 - 0.5, r), range(0, self.lookback_periods)))
         self.portfoolio = {'Shares': 0, 'Cost': 0, 'PnL': 0, 'Avg_Cost': 0, 'Unrealized_PnL': 0}
 
