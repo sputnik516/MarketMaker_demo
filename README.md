@@ -25,6 +25,7 @@ Run several instances of client.py to simulate multiple market participants.
 
 server.py will consolidate order from various clients, and our "strategy" will trade on those orders when it's targets
 are met. It will maintain it's own portfolio allocation and risk control, and attempt to generate a posititive PnL
+RabbitMQ will consolidate all orders coming from the market participants into one order book, demonstrating it's ability to process aynchronous messages from many sources.
 
 Please see below for all of this in action:
 
